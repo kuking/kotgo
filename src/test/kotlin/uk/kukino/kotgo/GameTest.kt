@@ -20,24 +20,24 @@ class GameTest {
     }
 
     @Test
-    fun two_passes_is_finished() {
+    @Ignore //TODO: Implement handicap tables, etc.
+    fun init_firstPlayerWhiteWhenHandicap() {
+        game = Game(19, 2)
+        assertEquals(Color.WHITE, game.nextPlayer)
+    }
+
+    @Test
+    fun ending_two_passes_is_finish() {
         game.play("black pass")
         game.play("white pass")
         assert(game.finished)
     }
 
     @Test(expected = Game.InvalidMove::class)
-    fun after_finished_moving_is_invalid() {
+    fun ending_after_finished_any_move_is_invalid_move() {
         game.play("black pass")
         game.play("white pass")
         game.play("black pass")
-    }
-
-    @Test
-    @Ignore //TODO: Implement handicap tables, etc.
-    fun init_firstPlayerWhiteWhenHandicap() {
-        game = Game(19, 2)
-        assertEquals(Color.WHITE, game.nextPlayer)
     }
 
     @Test(expected = Game.InvalidPlayer::class)
@@ -69,7 +69,7 @@ class GameTest {
     }
 
     @Test
-    fun play_simplest_kill() {
+    fun play_kill_simplest() {
         game.play("B B1")
         game.play("W A1")
         game.play("B A2")
@@ -79,7 +79,7 @@ class GameTest {
     }
 
     @Test
-    fun play_four_kills() {
+    fun play_kill_four_kills() {
         /*
           A B C D E F G H J K L M N O P Q R S T
        19 . . . . . . . . . . . . . . . . . . . 19
@@ -118,7 +118,7 @@ class GameTest {
     }
 
     @Test
-    fun play_simple_kill_then_double_kill() {
+    fun play_kill_then_double_kill() {
         listOf("black k10", "white l10", "black k9", "white l9", "black j10",
                 "white k11", "black j9", "white j11", "black d10", "white h10", "black d9",
                 "white h9", "black d8", "white j8", "black d11", "white k8", // up to here eats 4
@@ -134,7 +134,8 @@ class GameTest {
         assert(game.capturedCount() == listOf(0, 4))
     }
 
-    fun play_basic_ko() {
+    @Test
+    fun play_ko_simple() {
         /*
        *  5 . . . . . . . . .
        *  4 . . . + . . . . .
@@ -173,5 +174,11 @@ class GameTest {
         } catch (e: Game.InvalidMove) {
         } // expected, white can't eat at A2 because it is a KO
         assert(game.capturedCount() == listOf(1, 1))
+    }
+
+    @Test
+    @Ignore
+    fun play_ko_super() {
+        //TODO
     }
 }
