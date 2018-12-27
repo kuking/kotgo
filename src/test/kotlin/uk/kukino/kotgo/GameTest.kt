@@ -20,10 +20,32 @@ class GameTest {
         assertEquals(Color.WHITE, game.nextPlayer)
     }
 
+    @Test(expected = Game.InvalidPlayer::class)
+    fun play_invalid_color() {
+        game.play(Move.fromString("white D4"))
+    }
+
+    @Test(expected = Game.InvalidPlayer::class)
+    fun play_invalid_color_2() {
+        game.play(Move.fromString("black D4"))
+        game.play(Move.fromString("black Q16"))
+    }
+
     @Test
     fun play_simplest() {
+        game.play(Move.fromString("black D4"))
+        assert(game.nextPlayer == Color.WHITE)
+        assert(game.board.get(Cross.fromString("D4")) == Color.BLACK)
 
-//        game.play()
+        game.play(Move.fromString("white Q16"))
+        assert(game.nextPlayer == Color.BLACK)
+        assert(game.board.get(Cross.fromString("Q16")) == Color.WHITE)
+    }
+
+    @Test(expected = Game.InvalidMove::class)
+    fun play_playing_on_already_occupied() {
+        game.play(Move.fromString("black D4"))
+        game.play(Move.fromString("white D4"))
     }
 
 }

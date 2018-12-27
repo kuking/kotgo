@@ -28,6 +28,13 @@ class CrossTest {
     }
 
     @Test
+    fun cross_fromString_big_happy() {
+        val c = Cross.fromString("Q16")
+        assertEquals(16, c.x)
+        assertEquals(15, c.y)
+    }
+
+    @Test
     fun cross_fromString_happy_lowercase() {
         val c = Cross.fromString("f5")
         assertEquals(5, c.x)
