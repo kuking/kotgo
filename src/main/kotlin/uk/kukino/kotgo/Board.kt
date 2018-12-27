@@ -11,13 +11,14 @@ data class Board(var size: Int) {
         //TODO: handicaps here
     }
 
-    fun get(cross: Cross) = intersections[cross.idx(size)]
+    fun get(coord: Coord) = intersections[coord.idx(size)]
+    fun get(crossSt : String) = get(Coord.fromString(crossSt))
 
-    fun set(cross: Cross, col: Color) {
-        if (cross.x < 0 || cross.y < 0 || cross.x >= size || cross.y >= size) {
+    fun set(coord: Coord, col: Color) {
+        if (coord.x < 0 || coord.y < 0 || coord.x >= size || coord.y >= size) {
             throw IllegalArgumentException("Coordinates out of the board!")
         }
-        intersections[cross.idx(size)] = col
+        intersections[coord.idx(size)] = col
     }
 
 }

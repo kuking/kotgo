@@ -1,10 +1,12 @@
 package uk.kukino.kotgo
 
-data class Move(var player: Color, var cross: Cross) {
+data class Move(var player: Color, var coord: Coord) {
 
     init {
         assert(player != Color.EMPTY) { "Player color only be BLACK or WHITE, not EMPTY" }
     }
+
+    fun isPass() = coord.isPass()
 
     companion object {
         fun fromString(str: String): Move {
@@ -20,7 +22,7 @@ data class Move(var player: Color, var cross: Cross) {
             else if (colorSt == "W" || colorSt == "WHITE") Color.WHITE
             else throw AssertionError("Invalid Format for player")
 
-            return Move(color, Cross.fromString(tokens.last()))
+            return Move(color, Coord.fromString(tokens.last()))
         }
     }
 

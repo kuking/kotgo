@@ -7,7 +7,7 @@ class MoveTest {
 
     @Test(expected = AssertionError::class)
     fun emptyColorIsInvalid() {
-        Move(Color.EMPTY, Cross.fromString("A1"))
+        Move(Color.EMPTY, Coord.fromString("A1"))
     }
 
     @Test(expected = AssertionError::class)
@@ -39,54 +39,61 @@ class MoveTest {
     fun fromString_happy() {
         val m = Move.fromString("BLACK C2")
         assertEquals(Color.BLACK, m.player)
-        assertEquals(Cross.fromString("C2"), m.cross)
+        assertEquals(Coord.fromString("C2"), m.coord)
     }
 
     @Test
     fun fromString_happy_short_player() {
         val m = Move.fromString("B C2")
         assertEquals(Color.BLACK, m.player)
-        assertEquals(Cross.fromString("C2"), m.cross)
+        assertEquals(Coord.fromString("C2"), m.coord)
     }
 
     @Test
     fun fromString_happy_lowercase() {
         val m = Move.fromString("black c2")
         assertEquals(Color.BLACK, m.player)
-        assertEquals(Cross.fromString("C2"), m.cross)
+        assertEquals(Coord.fromString("C2"), m.coord)
     }
 
     @Test
     fun fromString_happy_lowercase_short_player() {
         val m = Move.fromString("b c2")
         assertEquals(Color.BLACK, m.player)
-        assertEquals(Cross.fromString("C2"), m.cross)
+        assertEquals(Coord.fromString("C2"), m.coord)
     }
 
     @Test
     fun fromString_happy_hacker_case() {
         val m = Move.fromString("BlaCk c2")
         assertEquals(Color.BLACK, m.player)
-        assertEquals(Cross.fromString("C2"), m.cross)
+        assertEquals(Coord.fromString("C2"), m.coord)
     }
 
     @Test
     fun fromString_happy_untrimmed() {
         val m = Move.fromString("  black   c2  ")
         assertEquals(Color.BLACK, m.player)
-        assertEquals(Cross.fromString("C2"), m.cross)
+        assertEquals(Coord.fromString("C2"), m.coord)
     }
 
     @Test
     fun fromString_happy_short_untrimmed() {
         val m = Move.fromString("  b   c2  ")
         assertEquals(Color.BLACK, m.player)
-        assertEquals(Cross.fromString("C2"), m.cross)
+        assertEquals(Coord.fromString("C2"), m.coord)
     }
 
     @Test(expected = AssertionError::class)
     fun fromString_invalid_hacky() {
         Move.fromString(" black watwat c2 ")
+    }
+
+    @Test
+    fun fromString_pass() {
+        val m = Move.fromString("white pass")
+        assert(Color.WHITE == m.player)
+        assert(m.isPass())
     }
 
 }
