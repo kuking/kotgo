@@ -34,4 +34,11 @@ class CrossTest {
         assertEquals(4, c.y)
     }
 
+    @Test
+    fun cross_fromString_happy_untrimmed() {
+        val c = Cross.fromString("  f5  ")
+        assertEquals(5, c.x)
+        assertEquals(4, c.y)
+    }
+
 }

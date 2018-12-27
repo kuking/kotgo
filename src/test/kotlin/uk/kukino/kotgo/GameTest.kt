@@ -21,7 +21,8 @@ class GameTest {
     }
 
     @Test
-    fun play_simple() {
+    fun play_simplest() {
+
 //        game.play()
     }
 

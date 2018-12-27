@@ -6,7 +6,7 @@ import kotlin.test.fail
 
 class BoardTest {
 
-    var board = Board(19)
+    private var board = Board(19)
 
     @Test
     fun init_sizeShouldBeAtLeastFour() {
