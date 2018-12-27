@@ -6,8 +6,12 @@ class Game(size: Int, handicap: Int = 0) {
     class InvalidPlayer : InvalidPly("Invalid player")
     class InvalidMove : InvalidPly("Invalid move")
 
-    var board = Board(size)
+    var board: Board = Board(size)
+        private set
+
     var nextPlayer: Color = Color.BLACK
+        private set
+
     var moves: List<Move> = mutableListOf()
 
     init {
@@ -19,6 +23,10 @@ class Game(size: Int, handicap: Int = 0) {
         if (board.get(move.cross) != Color.EMPTY) throw InvalidMove()
         board.set(move.cross, move.player)
         nextPlayer = if (nextPlayer == Color.WHITE) Color.BLACK else Color.WHITE
+    }
+
+    fun capturedCount(color: Color): Int {
+        return 0
     }
 
 

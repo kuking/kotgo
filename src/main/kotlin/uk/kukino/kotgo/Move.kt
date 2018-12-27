@@ -15,7 +15,12 @@ data class Move(var player: Color, var cross: Cross) {
                     .filter { !it.isBlank() }
             assert(tokens.size == 2) { "Invalid format, invalid amount of tokens" }
 
-            return Move(Color.valueOf(tokens.first()), Cross.fromString(tokens.last()))
+            val colorSt = tokens.first()
+            val color = if (colorSt == "B" || colorSt == "BLACK") Color.BLACK
+            else if (colorSt == "W" || colorSt == "WHITE") Color.WHITE
+            else throw AssertionError("Invalid Format for player")
+
+            return Move(color, Cross.fromString(tokens.last()))
         }
     }
 

@@ -43,8 +43,22 @@ class MoveTest {
     }
 
     @Test
+    fun fromString_happy_short_player() {
+        val m = Move.fromString("B C2")
+        assertEquals(Color.BLACK, m.player)
+        assertEquals(Cross.fromString("C2"), m.cross)
+    }
+
+    @Test
     fun fromString_happy_lowercase() {
         val m = Move.fromString("black c2")
+        assertEquals(Color.BLACK, m.player)
+        assertEquals(Cross.fromString("C2"), m.cross)
+    }
+
+    @Test
+    fun fromString_happy_lowercase_short_player() {
+        val m = Move.fromString("b c2")
         assertEquals(Color.BLACK, m.player)
         assertEquals(Cross.fromString("C2"), m.cross)
     }
@@ -59,6 +73,13 @@ class MoveTest {
     @Test
     fun fromString_happy_untrimmed() {
         val m = Move.fromString("  black   c2  ")
+        assertEquals(Color.BLACK, m.player)
+        assertEquals(Cross.fromString("C2"), m.cross)
+    }
+
+    @Test
+    fun fromString_happy_short_untrimmed() {
+        val m = Move.fromString("  b   c2  ")
         assertEquals(Color.BLACK, m.player)
         assertEquals(Cross.fromString("C2"), m.cross)
     }

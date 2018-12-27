@@ -48,4 +48,14 @@ class GameTest {
         game.play(Move.fromString("white D4"))
     }
 
+    @Test
+    fun play_simplest_kill() {
+        game.play(Move.fromString("B B1"))
+        game.play(Move.fromString("W A1"))
+        game.play(Move.fromString("B A2"))
+
+        assert(game.board.get(Cross.fromString("A1")) == Color.EMPTY)
+        assert(game.capturedCount(Color.WHITE) == 1)
+
+    }
 }

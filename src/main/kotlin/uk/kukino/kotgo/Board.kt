@@ -1,6 +1,6 @@
 package uk.kukino.kotgo
 
-class Board(var size: Int) {
+data class Board(var size: Int) {
 
     var intersections: Array<Color>
 
