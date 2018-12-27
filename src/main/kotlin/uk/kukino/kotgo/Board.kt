@@ -2,7 +2,7 @@ package uk.kukino.kotgo
 
 data class Board(var size: Int) {
 
-    var intersections: Array<Color>
+    private var intersections: Array<Color>
 
     init {
         if (size < 4) throw IllegalArgumentException("Board size should be at least 4 intersections wide")

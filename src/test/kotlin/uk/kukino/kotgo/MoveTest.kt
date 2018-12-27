@@ -35,6 +35,11 @@ class MoveTest {
         Move.fromString("  black c  ")
     }
 
+    @Test(expected = AssertionError::class)
+    fun fromString_invalid_player() {
+        Move.fromString("  empty c1   ")
+    }
+
     @Test
     fun fromString_happy() {
         val m = Move.fromString("BLACK C2")

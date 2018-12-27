@@ -1,6 +1,6 @@
 package uk.kukino.kotgo
 
-data class Game(val size: Int, val handicap: Int = 0) {
+data class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
 
     open class InvalidPly(message: String) : Exception(message)
     class InvalidPlayer : InvalidPly("Invalid player")
@@ -15,7 +15,7 @@ data class Game(val size: Int, val handicap: Int = 0) {
     var finished: Boolean = false
         private set
 
-    var moves: List<Move> = mutableListOf()
+    var moves: MutableList<Move> = mutableListOf()
 
 
     init {
@@ -25,7 +25,18 @@ data class Game(val size: Int, val handicap: Int = 0) {
     fun play(st: String) = play(Move.fromString(st))
 
     fun play(move: Move) {
+        if (finished) throw InvalidMove()
         if (move.player != nextPlayer) throw InvalidPlayer()
+
+        if (move.isPass()) {
+            moves.add(move)
+            if (moves.size >= 2 && moves[moves.size - 2].isPass()) {
+                finished = true
+            }
+            nextPlayer = if (nextPlayer == Color.WHITE) Color.BLACK else Color.WHITE
+            return
+        }
+
         if (board.get(move.coord) != Color.EMPTY) throw InvalidMove()
         board.set(move.coord, move.player)
         nextPlayer = if (nextPlayer == Color.WHITE) Color.BLACK else Color.WHITE

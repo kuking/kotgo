@@ -26,6 +26,12 @@ class GameTest {
         assert(game.finished)
     }
 
+    @Test(expected = Game.InvalidMove::class)
+    fun after_finished_moving_is_invalid() {
+        game.play("black pass")
+        game.play("white pass")
+        game.play("black pass")
+    }
 
     @Test
     @Ignore //TODO: Implement handicap tables, etc.
