@@ -1,14 +1,6 @@
 package uk.kukino.kotgo
 
-enum class Color {
-    BLACK, WHITE, EMPTY
-}
-
-data class Cross(val x: Int, val y: Int) {
-    fun idx(size: Int) = y * size + x
-}
-
-class Board(var size: Int, var handicap: Int = 0) {
+class Board(var size: Int) {
 
     var intersections: Array<Color>
 
@@ -22,6 +14,9 @@ class Board(var size: Int, var handicap: Int = 0) {
     fun get(cross: Cross) = intersections[cross.idx(size)]
 
     fun set(cross: Cross, col: Color) {
+        if (cross.x < 0 || cross.y < 0 || cross.x >= size || cross.y >= size) {
+            throw IllegalArgumentException("Coordinates out of the board!")
+        }
         intersections[cross.idx(size)] = col
     }
 
