@@ -16,8 +16,13 @@ data class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
     var finished: Boolean = false
         private set
 
-    var moves: MutableList<Move> = mutableListOf()
+    var whiteCaptured: Int = 0
+        private set
 
+    var blackCaptured: Int = 0
+        private set
+
+    private val moves: MutableList<Move> = mutableListOf()
 
     init {
 
@@ -48,18 +53,32 @@ data class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
 
         val adjacentChains = move.coord.adjacents(size).map { board.chainAt(it) }
         val oneLibertyChains = adjacentChains.filter { it.liberties.size == 1 }
-        val suicide = oneLibertyChains.filter { it.color == player }.count() > 0
-        val killing = oneLibertyChains.filter { it.color == opponent }.count() > 0
+        val isSuicide = oneLibertyChains.filter { it.color == player }.count() > 0
+        val isKilling = oneLibertyChains.filter { it.color == opponent }.count() > 0
 
-        if (!suicide && !killing) { // simple move
+        if (!isSuicide && !isKilling) { // simple move
             moves.add(move)
             board.set(move.coord, move.player)
             nextPlayer = nextPlayer.opposite()
             return
         }
 
-        if (suicide && !killing) { // simple suicide
+        if (isSuicide && !isKilling) { // simple suicide
             throw InvalidMoveSuicide()
+        }
+
+        if (isKilling) { // ko-less implementation -- needs to be done in a temp Board
+            oneLibertyChains
+                    .filter { it.color == opponent }
+                    .flatMap { it.stones }
+                    .forEach {
+                        if (opponent == Color.BLACK) blackCaptured++ else whiteCaptured++
+                        board.set(it, Color.EMPTY)
+                    }
+            moves.add(move)
+            board.set(move.coord, move.player)
+            nextPlayer = opponent
+            return
         }
 
         // complex, we need to get a copy of the board and play around
@@ -67,16 +86,11 @@ data class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
 
         moves.add(move)
         board.set(move.coord, move.player)
-        nextPlayer = nextPlayer.opposite()
+        nextPlayer = opponent
     }
 
-    fun capturedCount(): List<Int> {
-        return listOf(0, 0)
+    fun captured(): List<Int> {
+        return listOf(blackCaptured, whiteCaptured)
     }
-
-    fun capturedCount(color: Color): Int {
-        return 0
-    }
-
 
 }

@@ -94,7 +94,7 @@ class GameTest {
         game.play("B A2")
 
         assert(game.board.get("A1") == Color.EMPTY)
-        assert(game.capturedCount() == listOf(0, 1))
+        assert(game.captured() == listOf(0, 1))
     }
 
     @Test
@@ -129,11 +129,11 @@ class GameTest {
                 .forEach { game.play(it) }
 
         assert(game.board.get("k10") == Color.EMPTY)
-        assert(game.board.get("j9") == Color.EMPTY)
+        assert(game.board.get("k9") == Color.EMPTY)
         assert(game.board.get("j10") == Color.EMPTY)
-        assert(game.board.get("j8") == Color.EMPTY)
+        assert(game.board.get("j9") == Color.EMPTY)
 
-        assert(game.capturedCount() == listOf(0, 4))
+        assert(game.captured() == listOf(4, 0))
     }
 
     @Test
@@ -150,7 +150,7 @@ class GameTest {
         assert(game.board.get("j10") == Color.WHITE)
         assert(game.board.get("k9") == Color.WHITE)
 
-        assert(game.capturedCount() == listOf(0, 4))
+        assert(game.captured() == listOf(6, 0))
     }
 
     @Test
@@ -167,7 +167,7 @@ class GameTest {
         listOf("black a1", "white b1", "black a3", "white c1", "black b2", "white a2") // eat, valid
                 .map { Move.fromString(it) }
                 .forEach { game.play(it) }
-        assert(game.capturedCount() == listOf(1, 0))
+        assert(game.captured() == listOf(1, 0))
 
         try {
             game.play("black a1")
@@ -182,7 +182,7 @@ class GameTest {
 
         // variant: white finishes the ko
         game2.play("white a1")
-        assert(game.capturedCount() == listOf(1, 0))
+        assert(game.captured() == listOf(1, 0))
 
         // variant: white plays somewhere else, black can play in the eye (ex ko) again
         game.play("white d1")
@@ -192,7 +192,7 @@ class GameTest {
             fail("It should have been an invalid move")
         } catch (e: Game.InvalidMove) {
         } // expected, white can't eat at A2 because it is a KO
-        assert(game.capturedCount() == listOf(1, 1))
+        assert(game.captured() == listOf(1, 1))
     }
 
     @Test
