@@ -28,6 +28,7 @@ data class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
         if (finished) throw InvalidMove()
         if (move.player != nextPlayer) throw InvalidPlayer()
 
+        // pass
         if (move.isPass()) {
             moves.add(move)
             if (moves.size >= 2 && moves[moves.size - 2].isPass()) {
@@ -37,7 +38,13 @@ data class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
             return
         }
 
+        // stone
         if (board.get(move.coord) != Color.EMPTY) throw InvalidMove()
+
+        // stone, simple optimisation all surrounding chains have more than one liberty
+        
+
+
         board.set(move.coord, move.player)
         nextPlayer = if (nextPlayer == Color.WHITE) Color.BLACK else Color.WHITE
     }

@@ -7,6 +7,7 @@ import kotlin.test.fail
 class BoardTest {
 
     private var board = Board(19)
+    private var K10 = Coord.fromString("K10")
 
     @Test
     fun init_sizeShouldBeAtLeastFour() {
@@ -101,6 +102,48 @@ class BoardTest {
         assertEquals(Color.WHITE, board.get(cell))
         board.set(cell, Color.EMPTY)
         assertEquals(Color.EMPTY, board.get(cell))
+    }
+
+    @Test
+    fun chainAt_empty() {
+        assert(board.chainAt(Coord.fromString("K10")).isEmpty())
+    }
+
+    @Test
+    fun chainAt_simplest() {
+        board.set(K10, Color.BLACK)
+
+        val chain = board.chainAt(K10)
+
+        assert(chain.size == 1)
+        assert(chain.stones.contains(K10))
+        assert(chain.liberties == listOf("k9", "k11", "j10", "l10").map { Coord.fromString(it) }.toSet())
+    }
+
+    @Test
+    fun chainAt_complex() {
+        // see GameTest.play_kill_four_kills for board
+        listOf("k10", "k9", "j10", "j9", "d10", "d9", "d8", "d11")
+                .map { Coord.fromString(it) }
+                .forEach { board.set(it, Color.BLACK) }
+        listOf("L10", "L9", "k11", "j11", "h10", "h9", "j8", "k8")
+                .map { Coord.fromString(it) }
+                .forEach { board.set(it, Color.WHITE) }
+
+        val chain = board.chainAt(K10)
+        assert(chain.size == 4)
+        assert(chain.stones.containsAll(listOf("k10", "k9", "j10", "j9").map { Coord.fromString(it) }))
+        assert(chain.liberties.isEmpty())
+
+        val chain2 = board.chainAt(Coord.fromString("D11"))
+        assert(chain2.size == 4)
+        assert(chain2.stones.containsAll(listOf("d10", "d9", "d8", "d11").map { Coord.fromString(it) }))
+        assert(chain2.liberties.size == 10)
+
+        val chain3 = board.chainAt(Coord.fromString("H10"))
+        assert(chain3.size == 2)
+        assert(chain3.stones.containsAll(listOf("h10", "h9").map { Coord.fromString(it) }))
+        assert(chain3.liberties.size == 4)
     }
 
 }
