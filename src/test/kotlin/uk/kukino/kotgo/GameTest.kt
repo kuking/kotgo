@@ -69,6 +69,25 @@ class GameTest {
     }
 
     @Test
+    fun play_suicide_not_allowed() {
+        /*
+        3 . . . . . . . . . . . . . . . . . . .  3
+        2 X X . . . . . . . O . . . . . . . . .  2
+        1 O * X . . . . . . . . . . . . . . . .  1
+          A B C D E F G H J K L M N O P Q R S T
+         */
+        listOf("B A2", "W A1", "B B2", "W K2", "B C1")
+                .map { Move.fromString(it) }
+                .forEach { game.play(it) }
+
+        try {
+            game.play(Move.fromString("W B1"))
+            fail("This is suicide, should throw")
+        } catch (e: Game.InvalidMoveSuicide) {
+        }
+    }
+
+    @Test
     fun play_kill_simplest() {
         game.play("B B1")
         game.play("W A1")

@@ -4,7 +4,8 @@ data class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
 
     open class InvalidPly(message: String) : Exception(message)
     class InvalidPlayer : InvalidPly("Invalid player")
-    class InvalidMove : InvalidPly("Invalid move")
+    open class InvalidMove(message: String = "Invalid Move") : InvalidPly(message)
+    class InvalidMoveSuicide : InvalidMove("Suicide")
 
     var board: Board = Board(size)
         private set
@@ -34,19 +35,39 @@ data class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
             if (moves.size >= 2 && moves[moves.size - 2].isPass()) {
                 finished = true
             }
-            nextPlayer = if (nextPlayer == Color.WHITE) Color.BLACK else Color.WHITE
+            nextPlayer = nextPlayer.opposite()
             return
         }
 
         // stone
         if (board.get(move.coord) != Color.EMPTY) throw InvalidMove()
 
-        // stone, simple optimisation all surrounding chains have more than one liberty
-        
+        // simple scan
+        val player = nextPlayer
+        val opponent = nextPlayer.opposite()
+
+        val adjacentChains = move.coord.adjacents(size).map { board.chainAt(it) }
+        val oneLibertyChains = adjacentChains.filter { it.liberties.size == 1 }
+        val suicide = oneLibertyChains.filter { it.color == player }.count() > 0
+        val killing = oneLibertyChains.filter { it.color == opponent }.count() > 0
+
+        if (!suicide && !killing) { // simple move
+            moves.add(move)
+            board.set(move.coord, move.player)
+            nextPlayer = nextPlayer.opposite()
+            return
+        }
+
+        if (suicide && !killing) { // simple suicide
+            throw InvalidMoveSuicide()
+        }
+
+        // complex, we need to get a copy of the board and play around
 
 
+        moves.add(move)
         board.set(move.coord, move.player)
-        nextPlayer = if (nextPlayer == Color.WHITE) Color.BLACK else Color.WHITE
+        nextPlayer = nextPlayer.opposite()
     }
 
     fun capturedCount(): List<Int> {
