@@ -33,7 +33,7 @@ class GameTest {
         assert(game.finished)
     }
 
-    @Test(expected = Game.InvalidMove::class)
+    @Test(expected = Game.GameFinished::class)
     fun ending_after_finished_any_move_is_invalid_move() {
         game.play("black pass")
         game.play("white pass")
@@ -83,7 +83,7 @@ class GameTest {
         try {
             game.play(Move.fromString("W B1"))
             fail("This is suicide, should throw")
-        } catch (e: Game.InvalidMoveSuicide) {
+        } catch (e: Game.MoveIsSuicide) {
         }
     }
 

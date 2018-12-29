@@ -2,11 +2,12 @@ package uk.kukino.kotgo
 
 class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
 
-    open class InvalidPly(message: String) : Exception(message)
-    class InvalidPlayer : InvalidPly("Invalid player")
-    open class InvalidMove(message: String = "Invalid Move") : InvalidPly(message)
-    class InvalidMoveSuicide : InvalidMove("Suicide")
-    open class InvalidMoveKO : InvalidMove("Invalid Move; it is KO")
+    abstract class InvalidMove(message: String) : Exception(message)
+    class InvalidPlayer : InvalidMove("Invalid player")
+    class GameFinished : InvalidMove("The game is already finished")
+    class MoveIsSuicide : InvalidMove("Suicide")
+    class MoveIsKO : InvalidMove("Invalid Move; it is KO")
+    class MoveNotEmpty : InvalidMove("The position is not empty")
 
     var board: Board = Board(size)
         private set
@@ -48,7 +49,7 @@ class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
         val player = this.nextPlayer
         val opponent = player.opposite()
 
-        if (finished) throw InvalidMove()
+        if (finished) throw GameFinished()
         if (move.player != player) throw InvalidPlayer()
 
         /*
@@ -59,7 +60,7 @@ class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
         /*
         \Stone
          */
-        if (board.get(move.coord) != Color.EMPTY) throw InvalidMove()
+        if (board.get(move.coord) != Color.EMPTY) throw MoveNotEmpty()
 
         // basic scan for 'fast play'
         val adjacentChains = move.coord.adjacents(size).map { board.chainAt(it) }
@@ -82,9 +83,9 @@ class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
                 .fold(listOf(0, 0)) { a, b -> listOf(a[0] + b[0], a[1] + b[1]) }
 
         mock.set(move.coord, move.player)
-        if (superKo.contains(mock.zorbrist)) throw InvalidMoveKO()
+        if (superKo.contains(mock.zorbrist)) throw MoveIsKO()
         val isSuicide = mock.chainAt(move.coord).liberties.isEmpty()
-        if (isSuicide) throw InvalidMoveSuicide()
+        if (isSuicide) throw MoveIsSuicide()
 
         this.board = mock
         this.blackCaptured += killCount[0]
