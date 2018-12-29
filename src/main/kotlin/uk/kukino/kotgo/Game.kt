@@ -103,6 +103,7 @@ class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
                 Color.BLACK -> black++
                 Color.WHITE -> white++
                 Color.EMPTY -> {
+                    // this position has been already removed
                 }
             }
             b.set(it, Color.EMPTY)
