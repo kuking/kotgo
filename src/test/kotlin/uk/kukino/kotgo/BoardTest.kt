@@ -146,4 +146,37 @@ class BoardTest {
         assert(chain3.liberties.size == 4)
     }
 
+    @Test
+    fun copy_is_deep() {
+        val c = Coord.fromString("A1")
+        board.set(c, Color.BLACK)
+        assert(board.copy().get(c) == board.get(c))
+    }
+
+    @Test
+    fun zobrist_works() {
+        val c = Coord(5, 5)
+        val z1 = board.zorbrist
+        board.set(c, Color.EMPTY)
+        assert(z1 == board.zorbrist) { "Not modifying should be have same Zobrist value" }
+
+        board.set(c, Color.WHITE)
+        val z2w = board.zorbrist
+        assert(z1 != z2w) { "Modifying should be different!" }
+
+        board.set(c, Color.BLACK)
+        val z3b = board.zorbrist
+        assert(z2w != z3b)
+        assert(z3b != z1)
+
+        // returning to white should hold same value
+        board.set(c, Color.WHITE)
+        val z4w = board.zorbrist
+        assert(z4w == z2w)
+
+        // returning to empty should leave the same board again
+        board.set(c, Color.EMPTY)
+        assert(board.zorbrist == z1)
+    }
+
 }

@@ -1,11 +1,12 @@
 package uk.kukino.kotgo
 
-data class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
+class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
 
     open class InvalidPly(message: String) : Exception(message)
     class InvalidPlayer : InvalidPly("Invalid player")
     open class InvalidMove(message: String = "Invalid Move") : InvalidPly(message)
     class InvalidMoveSuicide : InvalidMove("Suicide")
+    open class InvalidMoveKO : InvalidMove("Invalid Move; it is KO")
 
     var board: Board = Board(size)
         private set
@@ -23,70 +24,100 @@ data class Game(val size: Int, val handicap: Int = 0, val komi: Float = 5.5f) {
         private set
 
     private val moves: MutableList<Move> = mutableListOf()
+    private val superKo: MutableSet<Long> = mutableSetOf()
 
     init {
+        superKo.add(board.zorbrist)
+    }
 
+    fun copy(): Game {
+        val new = Game(size, handicap, komi)
+        new.board = this.board.copy()
+        new.nextPlayer = this.nextPlayer
+        new.finished = this.finished
+        new.whiteCaptured = this.whiteCaptured
+        new.blackCaptured = this.blackCaptured
+        new.moves.addAll(this.moves)
+        new.superKo.addAll(this.superKo)
+        return new
     }
 
     fun play(st: String) = play(Move.fromString(st))
 
     fun play(move: Move) {
+        val player = this.nextPlayer
+        val opponent = player.opposite()
+
         if (finished) throw InvalidMove()
-        if (move.player != nextPlayer) throw InvalidPlayer()
+        if (move.player != player) throw InvalidPlayer()
 
-        // pass
-        if (move.isPass()) {
-            moves.add(move)
-            if (moves.size >= 2 && moves[moves.size - 2].isPass()) {
-                finished = true
-            }
-            nextPlayer = nextPlayer.opposite()
-            return
-        }
+        /*
+        \Pass
+         */
+        if (move.isPass()) return applyMove(move, opponent)
 
-        // stone
+        /*
+        \Stone
+         */
         if (board.get(move.coord) != Color.EMPTY) throw InvalidMove()
 
-        // simple scan
-        val player = nextPlayer
-        val opponent = nextPlayer.opposite()
-
+        // basic scan for 'fast play'
         val adjacentChains = move.coord.adjacents(size).map { board.chainAt(it) }
         val oneLibertyChains = adjacentChains.filter { it.liberties.size == 1 }
-        val isSuicide = oneLibertyChains.filter { it.color == player }.count() > 0
-        val isKilling = oneLibertyChains.filter { it.color == opponent }.count() > 0
 
-        if (!isSuicide && !isKilling) { // simple move
-            moves.add(move)
-            board.set(move.coord, move.player)
-            nextPlayer = nextPlayer.opposite()
-            return
+        val maybeKilling = oneLibertyChains.filter { it.color == opponent }.count() > 0
+        val maybeSuicide = move.coord.adjacents(size).filter { board.get(it) == Color.EMPTY }.count() == 0
+        if (!maybeSuicide && !maybeKilling) return applyMove(move, opponent)
+
+        // tries to play the move in a mock board to analyse the whole outcome
+        return complexPlay(move, opponent, oneLibertyChains)
+    }
+
+    private fun complexPlay(move: Move, opponent: Color, oneLibertyChains: List<Chain>) {
+        val mock = this.board.copy()
+
+        val killCount = oneLibertyChains
+                .filter { it.color == opponent }
+                .map { capture(mock, it) }
+                .fold(listOf(0, 0)) { a, b -> listOf(a[0] + b[0], a[1] + b[1]) }
+
+        mock.set(move.coord, move.player)
+        if (superKo.contains(mock.zorbrist)) throw InvalidMoveKO()
+        val isSuicide = mock.chainAt(move.coord).liberties.isEmpty()
+        if (isSuicide) throw InvalidMoveSuicide()
+
+        this.board = mock
+        this.blackCaptured += killCount[0]
+        this.whiteCaptured += killCount[1]
+
+        return applyMove(move, opponent)
+
+    }
+
+    private fun capture(b: Board, chain: Chain): List<Int> {
+        var black = 0
+        var white = 0
+        chain.stones.forEach {
+            when (b.get(it)) {
+                Color.BLACK -> black++
+                Color.WHITE -> white++
+                Color.EMPTY -> {
+                }
+            }
+            b.set(it, Color.EMPTY)
         }
+        return listOf(black, white)
+    }
 
-        if (isSuicide && !isKilling) { // simple suicide
-            throw InvalidMoveSuicide()
-        }
-
-        if (isKilling) { // ko-less implementation -- needs to be done in a temp Board
-            oneLibertyChains
-                    .filter { it.color == opponent }
-                    .flatMap { it.stones }
-                    .forEach {
-                        if (opponent == Color.BLACK) blackCaptured++ else whiteCaptured++
-                        board.set(it, Color.EMPTY)
-                    }
-            moves.add(move)
-            board.set(move.coord, move.player)
-            nextPlayer = opponent
-            return
-        }
-
-        // complex, we need to get a copy of the board and play around
-
-
-        moves.add(move)
-        board.set(move.coord, move.player)
+    private fun applyMove(move: Move, opponent: Color) {
         nextPlayer = opponent
+        moves.add(move)
+        if (move.isPass()) {
+            finished = moves.size >= 2 && moves[moves.size - 2].isPass()
+        } else {
+            board.set(move.coord, move.player)
+            superKo.add(board.zorbrist)
+        }
     }
 
     fun captured(): List<Int> {

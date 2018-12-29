@@ -5,7 +5,7 @@ data class Coord(val x: Byte, val y: Byte) {
         fun fromString(coord: String): Coord {
             val coordt = coord.trim().toUpperCase()
 
-            if (coordt == "PASS") return Coord(-1, -1) // special case, -1, -1 is pass
+            if (coordt == "PASS") return Coord(123, 123) // special case: 123, 123 is pass
 
             assert(coordt.length == 2 || coordt.length == 3) { "This should have two or three letters" }
             assert(coordt[0].isLetter()) { "First character should be a letter but got ${coord[0]}" }
@@ -20,7 +20,7 @@ data class Coord(val x: Byte, val y: Byte) {
         }
     }
 
-    fun isPass() = (x.toInt() == -1 && y.toInt() == -1)
+    fun isPass() = (x.toInt() == 123 && y.toInt() == 123)
 
     fun idx(size: Int) = y * size + x
 

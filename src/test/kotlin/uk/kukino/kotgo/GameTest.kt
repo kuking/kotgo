@@ -182,7 +182,7 @@ class GameTest {
 
         // variant: white finishes the ko
         game2.play("white a1")
-        assert(game.captured() == listOf(1, 0))
+        assert(game2.captured() == listOf(1, 0))
 
         // variant: white plays somewhere else, black can play in the eye (ex ko) again
         game.play("white d1")
